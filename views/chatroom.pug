@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title Chat Room: #{joinCode}
+  body
+    #admin
+      if admin
+      form(action="/destroy" method="POST")
+        button(type="submit") End Chat Session
+        
+      form(action="/leave" method="POST")
+        button(type="submit") Leave Chat Session

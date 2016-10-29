@@ -1,0 +1,21 @@
+doctype html
+html
+  head
+    title chatRooms
+  body
+    h1 welcome to chatRooms
+    h3 start a chatroom
+    form(action="/" method="POST")
+      label create join code:
+        input(name="joinCode")
+      label your name:
+        input(name="name")
+      button(type="submit") Create Chat Room
+
+    h3 join a chatrooms
+    form(action="/join" method="POST")
+      label enter join code:
+        input(name="joinCode")
+      label your name:
+        input(name="name")
+      button(type="submit") Join Chatroom
