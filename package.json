@@ -1,22 +1,30 @@
 {
   "name": "chatrooms",
   "version": "1.0.0",
-  "description": "",
+  "description": "this is a chating a simple chating platform",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Marek Newton",
   "license": "ISC",
+  "url": "https://github.com/schuyler4/chatrooms",
   "dependencies": {
     "bluebird": "^3.4.6",
     "body-parser": "^1.15.2",
     "connect-redis": "^3.1.0",
+    "cookie-parser": "^1.4.3",
     "dotenv": "^2.0.0",
     "express": "^4.14.0",
+    "http": "0.0.0",
     "mongodb": "^2.2.11",
     "mongoose": "^4.6.5",
     "pug": "^2.0.0-beta6",
-    "redis": "^2.6.2"
+    "redis": "^2.6.2",
+    "socket.io": "^1.5.1"
+  },
+  "devDependencies": {
+    "mocha": "^3.1.2",
+    "should": "^11.1.1"
   }
 }

@@ -1,21 +1,25 @@
 doctype html
 html
   head
+    link(rel="stylesheet" href="home.css")
     title chatRooms
   body
-    h1 welcome to chatRooms
-    h3 start a chatroom
-    form(action="/" method="POST")
-      label create join code:
-        input(name="joinCode")
-      label your name:
-        input(name="name")
-      button(type="submit") Create Chat Room
+    h1(id="mainHeader") Chatrooms
+    h3(id="startHeader") Start A Chatroom
+    form(action="/" method="POST" id="createForm")
+      center
+        input(name="joinCode" class="input joinCode" placeholder="Join Code")
+        br
+        input(name="name" class="input name" placeholder="Name")
+        br
+        button(type="submit" class="button") Create Chat Room
 
-    h3 join a chatrooms
-    form(action="/join" method="POST")
-      label enter join code:
-        input(name="joinCode")
-      label your name:
-        input(name="name")
-      button(type="submit") Join Chatroom
+    h3(id="joinHeader") Join A Chatroom
+    form(action="/join" method="POST" id="joinForm")
+      center
+        input(name="joinCode" class="input joinCode" placeholder="Join Code")
+        br
+        input(name="name" class="input name" placeholder="Name")
+        br
+        button(type="submit" class="button") Join Chatroom
+    script(src="formCheck.js")

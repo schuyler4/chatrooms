@@ -1,0 +1,53 @@
+body {
+  background-color: black;
+}
+
+#mainHeader {
+  color: white;
+  font-family: arial;
+  font-size: 70px;
+  text-align: center
+}
+
+#startHeader {
+  color: white;
+  font-family: arial;
+  font-size: 30px;
+  text-align: center
+}
+
+#joinHeader {
+  color: white;
+  font-family: arial;
+  font-size: 30px;
+  text-align: center
+}
+
+.input {
+  width: 50%;
+  margin: 10px;
+  height: 30px;
+  font-size: 25px;
+  outline: none;
+  background-color: black;
+}
+
+input:focus { color: white }
+
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  color: white;
+}
+::-moz-placeholder { /* Firefox 19+ */
+  color: white;
+}
+:-ms-input-placeholder { /* IE 10+ */
+  color: white;
+}
+:-moz-placeholder { /* Firefox 18- */
+  color: white;
+}
+
+.button {
+  width: 10%;
+  height: 30px;
+}

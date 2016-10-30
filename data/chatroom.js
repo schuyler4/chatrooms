@@ -23,24 +23,44 @@ module.exports = {
     chatroom.save();
   },
 
-  join: function(joinCode, name) {
-    console.log(joinCode);
-    /*Chatroom.findOne({joinCode: joinCode}, function(err, chatroom) {
+  join: function(joinCode) {
+    var promise = Chatroom.findOne({joinCode: joinCode});
+    return promise;
+  },
+
+  addUser: function(id, name) {
+    const user = {
+      name: name,
+      messages: []
+    }
+
+    Chatroom.findByIdAndUpdate(id, {$push: {"users": user}},
+      {safe: true, upsert: true}, function(err, user) {
+      if(err)
+        console.error(err);
+    });
+  },
+
+  leave: function(joinCode, name) {
+    Chatroom.findOne({joinCode: joinCode}, function(err, chatroom) {
       if(err)
         console.error(err);
 
-      if(chatroom) {
-        console.log("panda");
-        console.log(chatroom);
-        return true;
-      } else {
-        console.log("goose");
-        console.log("this chat room does not exist");
-        return false;
+      console.log("the chatrooms object is " + chatroom);
+
+      for (i = 0; i < chatroom.users.length; i++) {
+        if(chatroom.users[i].name == name) {
+
+          var pull = {$pull: {"users": chatroom.users[i]}};
+          Chatroom.findOneAndUpdate({joinCode: joinCode}, pull, {safe: true},
+            function(err, user) {
+              if(err)
+                console.error(err);
+          });
+        }
       }
-    });*/
-    var promise = Chatroom.findOne({joinCode: joinCode});
-    return promise;
+
+    });
   },
 
   message: function() {
@@ -48,6 +68,12 @@ module.exports = {
   },
 
   destroy: function(joinCode) {
-    Chatroom.remove({joinCode: joinCode});
+    console.log("destroy triggered");
+    Chatroom.remove({joinCode: joinCode}, function(err, chatroom) {
+      if(err)
+        console.error(err);
+
+      console.log(joinCode + " destryed");
+    });
   }
 }
