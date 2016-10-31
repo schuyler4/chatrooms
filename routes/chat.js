@@ -3,10 +3,34 @@ var express = require('express');
 module.exports = function(app, io) {
   var Chatroom = require('../data/chatroom.js');
 
-  var chatroom = ('/:joinCode');
   io.on("connection", function(socket) {
-    var room = socket.handshake['query']['r_var'];\
-    z
+
+    socket.on("create", function(joinCode) {
+      console.log("created" + joinCode);
+      socket.join(joinCode);
+      console.log(socket.room);
+    });
+
+    socket.on("destroy", function(joinCode) {
+      console.log("destroying " + joinCode);
+      socket.leave(joinCode);
+    })
+
+    socket.on("join", function(joinCode) {
+      console.log("joined" + joinCode);
+      socket.join(joinCode);
+    });
+
+    socket.on("leave", function(data) {
+      socket.leave(data.code);
+      console.log(data.name + " left " + data.code);
+    });
+
+    socket.on("message", function(message) {
+      socket.to(message.room).emit("message", message.message);
+      console.log("emiting message to " + message.room);
+    });
+
   });
 
   app.get('/', function(req, res) {
@@ -20,6 +44,8 @@ module.exports = function(app, io) {
     Chatroom.create(joinCode, name);
 
     req.session.chatroom = joinCode;
+    io.sockets.emit("create", joinCode);
+    console.log("event emited");
     res.redirect('/' + joinCode)
   });
 
@@ -34,7 +60,6 @@ module.exports = function(app, io) {
 
         for(var i = 0; i < chatroom.users.length; i++) {
           if(chatroom.users[i].name == name) {
-            console.log("the name was repeated");
             noRepeat = false;
           }
         }
@@ -45,12 +70,7 @@ module.exports = function(app, io) {
           req.session.chatName = name;
           req.session.joinCode = joinCode;
 
-          var joinInfo = {
-            name: name,
-            joinCode: joinCode
-          }
-
-          var chatroom = io.of('/' + joinCode)
+          io.sockets.emit("join", joinCode);
           res.redirect('/' + chatroom.joinCode);
         } else {
           res.redirect('/');
@@ -64,23 +84,26 @@ module.exports = function(app, io) {
   });
 
   app.post('/leave', function(req, res) {
-    console.log("the chat name leaveing is " + req.session.chatName);
-    console.log("the chat room they are leaving is " + req.session.joinCode);
-
     var joinCode = req.session.joinCode;
     var name = req.session.chatName;
 
     Chatroom.leave(joinCode, name);
+
+    var leaveData = {
+      code: joinCode,
+      name: name
+    }
+
+    io.sockets.emit("leave", leaveData);
     res.redirect('/');
   });
 
   app.get('/:joinCode', function(req, res) {
-
-    console.log("the chat room is " + req.session.chatroom);
-    console.log("the chat name is " + req.session.chatName);
-
     var joinCode = req.params.joinCode;
     var admin;
+    console.log(req.session.chatroom);
+    console.log(req.session.chatName);
+    console.log(req.session.joinCode);
 
     if (req.session.chatroom) {
       admin = true;
@@ -95,8 +118,7 @@ module.exports = function(app, io) {
     var joinCode = req.session.chatroom;
 
     if(joinCode) {
-      io.sockets.emit("destroy", joinCode);
-
+      io.sockets.to(joinCode).emit("destroy", joinCode);
       Chatroom.destroy(joinCode)
       req.session.chatroom = null;
     }

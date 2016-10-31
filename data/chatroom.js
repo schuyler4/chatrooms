@@ -51,8 +51,6 @@ module.exports = {
       if(err)
         console.error(err);
 
-      console.log("the chatrooms object is " + chatroom);
-
       for (i = 0; i < chatroom.users.length; i++) {
         if(chatroom.users[i].name == name) {
 
@@ -68,17 +66,16 @@ module.exports = {
     });
   },
 
-  message: function() {
-
+  message: function(message, joinCode, user) {
+    console.log(message);
+    console.log(joinCode);
+    console.log(user);
   },
 
   destroy: function(joinCode) {
-    console.log("destroy triggered");
     Chatroom.remove({joinCode: joinCode}, function(err, chatroom) {
       if(err)
         console.error(err);
-
-      console.log(joinCode + " destryed");
     });
   }
 }

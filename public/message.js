@@ -1,27 +1,45 @@
 $(document).ready(function() {
+  var socket = io();
   var pathname = window.location.pathname;
-  var chatroom = pathname.substr(1);
+  var room = pathname.substr(1);
+  console.log(room);
 
-  var socket = io('/:joinCode');
-
-  /*socket.on("join", function(user) {
-    $("#usersList").append('<li>' + user.name + '</li>');
-
-    console.log(socket.io.engine.id);
-    socket.io.engine.id = user.joinCode;
-    console.log(socket.io.engine.id);
+  socket.on("create", function(joinCode) {
+    socket.emit("create", joinCode)
   });
 
-  socket.on("destroy", function(joinCode) {
-    console.log("destroy");
-    console.log(socket.io.engine.id);
-    if(socket.io.engine.id == joinCode) {
-      console.log("your chat session has been destryed")
-    }
-  });*/
-
-  socket.on("connect", function() {
-    console.log("connected");
+  socket.on("join", function(joinCode) {
+    socket.emit("join", joinCode)
   })
+
+  socket.on("destroy", function() {
+    console.log("room destroyed");
+    socket.to(joinCode).emit("destroy");
+  });
+
+  socket.on("leave", function(data) {
+    console.log(data.code);
+    console.log(data.name);
+    socket.emit("leave", data)
+  });
+
+  $("#messageButton").click(function() {
+    var message = $('#chatText').val()
+
+    var messageData = {
+      message: message,
+      room: room
+    }
+
+    socket.emit("message", messageData);
+    $("#chatText").val("");
+  });
+
+  socket.on("message", function(message) {
+    console.log("message recived");
+    console.log(message);
+  })
+  
+  console.log(socket.room);
 
 });
