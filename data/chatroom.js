@@ -41,6 +41,11 @@ module.exports = {
     });
   },
 
+  findUsers: function(joinCode) {
+    var promise = Chatroom.findOne({joinCode: joinCode});
+    return promise;
+  },
+
   leave: function(joinCode, name) {
     Chatroom.findOne({joinCode: joinCode}, function(err, chatroom) {
       if(err)

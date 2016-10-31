@@ -3,6 +3,9 @@ html
   head
     link(rel="stylesheet" href="home.css")
     title chatRooms
+    script(src="http://code.jquery.com/jquery-1.11.1.js")
+    script(src="/socket.io/socket.io.js")
+    script(src="message.js")
   body
     h1(id="mainHeader") Chatrooms
     h3(id="startHeader") Start A Chatroom
@@ -19,7 +22,7 @@ html
       center
         input(name="joinCode" class="input joinCode" placeholder="Join Code")
         br
-        input(name="name" class="input name" placeholder="Name")
+        input(name="name" class="input name" placeholder="Name" id="joinNameInput")
         br
         button(type="submit" class="button") Join Chatroom
     script(src="formCheck.js")

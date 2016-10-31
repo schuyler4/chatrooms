@@ -3,6 +3,12 @@ var express = require('express');
 module.exports = function(app, io) {
   var Chatroom = require('../data/chatroom.js');
 
+  var chatroom = ('/:joinCode');
+  io.on("connection", function(socket) {
+    var room = socket.handshake['query']['r_var'];\
+    z
+  });
+
   app.get('/', function(req, res) {
     res.render('home');
   });
@@ -39,11 +45,12 @@ module.exports = function(app, io) {
           req.session.chatName = name;
           req.session.joinCode = joinCode;
 
-          socket.on('connection', function(socket) {
-            console.log("emiting join");
-            io.emit('user join', name)
-          });
+          var joinInfo = {
+            name: name,
+            joinCode: joinCode
+          }
 
+          var chatroom = io.of('/' + joinCode)
           res.redirect('/' + chatroom.joinCode);
         } else {
           res.redirect('/');
@@ -84,14 +91,12 @@ module.exports = function(app, io) {
     res.render('chatroom', {joinCode: joinCode, admin: admin});
   });
 
-  io.on('connection', function(socket) {
-
-  });
-
   app.post('/destroy', function(req, res) {
     var joinCode = req.session.chatroom;
 
     if(joinCode) {
+      io.sockets.emit("destroy", joinCode);
+
       Chatroom.destroy(joinCode)
       req.session.chatroom = null;
     }
