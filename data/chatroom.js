@@ -23,6 +23,11 @@ module.exports = {
     chatroom.save();
   },
 
+  findRooms: function() {
+    var promise = Chatroom.find({});
+    return promise;
+  },
+
   join: function(joinCode) {
     var promise = Chatroom.findOne({joinCode: joinCode});
     return promise;
@@ -44,6 +49,10 @@ module.exports = {
   findUsers: function(joinCode) {
     var promise = Chatroom.findOne({joinCode: joinCode});
     return promise;
+  },
+
+  checkAdmin: function() {
+    var promise = Chatroom.findOne
   },
 
   leave: function(joinCode, name) {

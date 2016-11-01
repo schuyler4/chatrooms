@@ -6,13 +6,15 @@ module.exports = function(app, io) {
   io.on("connection", function(socket) {
 
     socket.on("create", function(joinCode) {
-      console.log("created " + joinCode);
       socket.join(joinCode);
+      console.log("created " + joinCode);
     });
 
     socket.on("destroy", function(joinCode) {
       console.log("destroying " + joinCode);
-      socket.broadcast.to(joinCode).emit("finish destroy")
+      socket.broadcast.to(joinCode).emit("finish destroy");
+      socket.in(joinCode).emit("finish destroy", joinCode);
+      console.log("emited finish destroy");
       socket.leave(joinCode);
     });
 
@@ -20,7 +22,7 @@ module.exports = function(app, io) {
       console.log("hit the join call")
       socket.join(data.joinCode);
       socket.in(data.joinCode).emit("finish join", data.name);
-      //socket.broadcast.to(data.joinCode).emit(data.name);
+      socket.broadcast.to(data.joinCode).emit(data.name);
     });
 
     socket.on("leave", function(data) {
@@ -36,19 +38,39 @@ module.exports = function(app, io) {
   });
 
   app.get('/', function(req, res) {
-    res.render('home');
+    res.render('home',{messages: req.flash('Err')});
   });
 
   app.post('/', function(req, res) {
     var joinCode = req.body.joinCode;
     var name = req.body.name;
 
-    Chatroom.create(joinCode, name);
+    var promise = Chatroom.findRooms();
+    promise.then(function(chatrooms) {
+      var noRepeat = true;
 
-    req.session.chatroom = joinCode;
-    io.sockets.emit("create", joinCode);
-    console.log("event emited");
-    res.redirect('/' + joinCode)
+      for(var i = 0; i < chatrooms.length; i++) {
+        if(chatrooms[i].joinCode == joinCode) {
+          noRepeat = false
+        }
+      }
+
+      if(noRepeat) {
+        Chatroom.create(joinCode, name);
+
+        req.session.chatroom = joinCode;
+        io.sockets.emit("create", joinCode);
+        res.redirect('/' + joinCode)
+      } else {
+        req.flash(
+          'Err', 'there is already a chatroom with that join code in session'
+        );
+
+        res.redirect('/');
+      }
+
+    });
+
   });
 
   app.post('/join', function(req, res) {
@@ -80,6 +102,9 @@ module.exports = function(app, io) {
           io.sockets.emit("join", data);
           res.redirect('/' + chatroom.joinCode);
         } else {
+          req.flash(
+            "Err","there is already a user with you name in the chat room"
+          );
           res.redirect('/');
         }
 

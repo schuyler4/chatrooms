@@ -3,10 +3,11 @@ html
   head
     title Chat Room: #{joinCode}
     script(src="http://code.jquery.com/jquery-1.11.1.js")
-    script(src="message.js")
     script(src="/socket.io/socket.io.js")
+    script(src="message.js")
+    script(src="windows.js")
+    link(rel="stylesheet" href="home.css")
   body
-    h1(id="tester") #{admin}
     form(action="/destroy" method="POST")
       button(type="submit") End Chat Session
 

@@ -16,6 +16,7 @@ var redisStore = require('connect-redis')(session);
 var client = redis.createClient(6379, 'localhost');
 var sio = require("socket.io");
 var io = sio(http);
+var flash = require("connect-flash");
 
 app.set('view engine', 'pug');
 app.use(express.static('public'));
@@ -34,6 +35,7 @@ app.use(session({
   store: new redisStore({ host: 'localhost', port: 6379,client:client,ttl:260}),
   cookie: { secure: false }
 }));
+app.use(flash());
 
 require('./routes/chat')(app, io);
 

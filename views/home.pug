@@ -25,4 +25,6 @@ html
         input(name="name" class="input name" placeholder="Name" id="joinNameInput")
         br
         button(type="submit" class="button") Join Chatroom
-    script(src="formCheck.js")
+
+        if messages
+          div(class="error") #{messages}
