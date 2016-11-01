@@ -6,19 +6,21 @@ module.exports = function(app, io) {
   io.on("connection", function(socket) {
 
     socket.on("create", function(joinCode) {
-      console.log("created" + joinCode);
+      console.log("created " + joinCode);
       socket.join(joinCode);
-      console.log(socket.room);
     });
 
     socket.on("destroy", function(joinCode) {
       console.log("destroying " + joinCode);
+      socket.broadcast.to(joinCode).emit("finish destroy")
       socket.leave(joinCode);
-    })
+    });
 
-    socket.on("join", function(joinCode) {
-      console.log("joined" + joinCode);
-      socket.join(joinCode);
+    socket.on("join", function(data) {
+      console.log("hit the join call")
+      socket.join(data.joinCode);
+      socket.in(data.joinCode).emit("finish join", data.name);
+      //socket.broadcast.to(data.joinCode).emit(data.name);
     });
 
     socket.on("leave", function(data) {
@@ -70,7 +72,12 @@ module.exports = function(app, io) {
           req.session.chatName = name;
           req.session.joinCode = joinCode;
 
-          io.sockets.emit("join", joinCode);
+          var data = {
+            name: name,
+            joinCode: joinCode
+          }
+
+          io.sockets.emit("join", data);
           res.redirect('/' + chatroom.joinCode);
         } else {
           res.redirect('/');
@@ -118,7 +125,7 @@ module.exports = function(app, io) {
     var joinCode = req.session.chatroom;
 
     if(joinCode) {
-      io.sockets.to(joinCode).emit("destroy", joinCode);
+      io.sockets.emit("destroy", joinCode);
       Chatroom.destroy(joinCode)
       req.session.chatroom = null;
     }

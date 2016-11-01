@@ -6,7 +6,7 @@ html
     script(src="message.js")
     script(src="/socket.io/socket.io.js")
   body
-    h1 #{admin}
+    h1(id="tester") #{admin}
     form(action="/destroy" method="POST")
       button(type="submit") End Chat Session
 
