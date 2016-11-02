@@ -23,12 +23,15 @@
     "mongoose": "^4.6.5",
     "pug": "^2.0.0-beta6",
     "redis": "^2.6.2",
-    "socket.io": "^1.5.1"
+    "socket.io": "^1.5.1",
+    "superagent": "^2.3.0"
   },
   "devDependencies": {
+    "assert": "^1.4.1",
     "mocha": "^3.1.2",
     "request": "^2.76.0",
     "should": "^11.1.1",
-    "superagent": "^2.3.0"
+    "superagent": "^2.3.0",
+    "supertest": "^2.0.1"
   }
 }

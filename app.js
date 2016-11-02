@@ -1,3 +1,5 @@
+/* this is the basic app file for configering all the
+modules */
 if(process.env.NODE_ENV != 'production') {
   require('dotenv').config()
 }
@@ -37,6 +39,7 @@ app.use(session({
 }));
 app.use(flash());
 
+/* add all the routes */
 require('./routes/chat')(app, io);
 
 http.listen(process.env.PORT || 3000);

@@ -1,8 +1,14 @@
-body {
-  background-color: black;
-}
 
 #chatText {
   border: 2px solid white;
   background-color: : black;
+  width: 30%;
+}
+
+.userListItem {
+  color: white;
+}
+
+body {
+  background-color: black;
 }

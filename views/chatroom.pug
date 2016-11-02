@@ -6,7 +6,7 @@ html
     script(src="/socket.io/socket.io.js")
     script(src="message.js")
     script(src="windows.js")
-    link(rel="stylesheet" href="home.css")
+    link(rel="stylesheet" href="chatroom.css")
   body
     form(action="/destroy" method="POST")
       button(type="submit") End Chat Session
@@ -19,4 +19,5 @@ html
 
     div(id="Users")
       ul(id="usersList")
-        li hello
+        each name in names
+          li(class="userListItem") #{name}
