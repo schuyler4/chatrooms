@@ -12,3 +12,13 @@
 body {
   background-color: black;
 }
+
+#messageContainer {
+  width: 60%;
+  height: 20px
+  border: 2px solid white;
+}
+
+.messageText {
+  color: white;
+}

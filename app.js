@@ -42,7 +42,7 @@ app.use(session({
     ttl: 14 * 24 * 60 * 60
   }),
   cookie: {
-    secure: true
+    //secure: true
   }
 }));
 app.use(flash());

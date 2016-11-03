@@ -53,9 +53,12 @@ $(document).ready(function() {
   });
 
   /* recive message back from server so it can be displayed */
-  socket.on("finish message", function(message) {
+  socket.on("message", function(message) {
     console.log("we recived a message");
-    console.log("a message: " + message);
+    $("#messageContainer").append("<div class='message'><p class='messageTest'>" +
+    message + "</p></div>");
+    console.log($("#messageContainer"));
+    console.log("a message: " + message.message);
   });
 
 });

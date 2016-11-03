@@ -37,12 +37,16 @@ module.exports = function(app, io) {
 
     /* for the people in the chatroom to chat */
     socket.on("message", function(message) {
+      console.log("recived " + message.message + " from cleint");
       Chatroom.message(message.message, message.room);
 
-      socket.in(message.room).emit("finish message", message.message);
-      socket.in(message.room).emit("finish message", message.message);
+      io.sockets.in(message.room).emit("message", message.message);
+      socket.in(message.room).emit("message", message.message);
 
-      socket.broadcast.to(message.room).emit("finish message", message.message);
+      socket.broadcast.to(message.room).emit("message", message.message);
+      console.log("should have sent back");
+
+      socket.emit("message", message);  
     });
 
     /* this is for removing stuff from the database when the user leaves
