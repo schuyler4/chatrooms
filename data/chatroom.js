@@ -66,13 +66,15 @@ module.exports = {
         console.error(err);
 
       for (i = 0; i < chatroom.users.length; i++) {
-        if(chatroom.users[i].name == name) {
+        if(chatroom.users[i].name === name) {
 
           var pull = {$pull: {"users": chatroom.users[i]}};
           Chatroom.findOneAndUpdate({joinCode: joinCode}, pull, {safe: true},
             function(err, user) {
               if(err)
                 console.error(err);
+              return;
+
           });
         }
       }

@@ -2,21 +2,21 @@
 leave chatrooms without destroying them */
 
 var joinCode = window.location.pathname.substr(1);
+var button = $("#destroyBtn").html() || $("#endBtn").html();
+console.log(button);
 
-/* do stuff when the window is unloaded */
+/* update data, destoying or leaving chatroom when a user leaves the
+page */
 $(window).unload(function() {
-  $.ajax({
-    url: '/destroy',
-    method: 'POST',
-    data {
-      joinCode: joinCode
-    },
-    success: function() {
-      console.log("sucksessful");
-    }
-    error: function(err) {
-      console.error(err);
-    }
-  });
+  /* if the button is the value of the creator destroy it else
+  leave it */
+  var creator;
+  if(button == 'End Chat Session') {
+    creator = true;
+  } else {
+    creator = false;
+  }
+
+  socket.emit("window upload", creator);
 
 });

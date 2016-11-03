@@ -38,9 +38,12 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   store: new MongoStore({
-    url: process.env.MONGO_URL
+    url: process.env.MONGO_URL,
+    ttl: 14 * 24 * 60 * 60
   }),
-  cookie: { secure: false }
+  cookie: {
+    secure: true
+  }
 }));
 app.use(flash());
 

@@ -5,18 +5,18 @@ html
     script(src="http://code.jquery.com/jquery-1.11.1.js")
     script(src="/socket.io/socket.io.js")
     script(src="message.js")
-    script(src="windows.js")
     link(rel="stylesheet" href="chatroom.css")
   body
     if admin
       form(action="/destroy" method="POST")
-        button(type="submit") End Chat Session
+        button(type="submit" id="destroyBtn") End Chat Session
     if !admin
       form(action="/leave" method="POST")
-        button(type="submit") Leave Chat Session
+        button(type="submit" id="endBtn") Leave Chat Session
     textarea(id="chatText")
     button(id="messageButton") send message
     div(id="Users")
       ul(id="usersList")
         each user in chatroom.users
           li(class="userListItem") #{user.name}
+    script(src="windows.js")
