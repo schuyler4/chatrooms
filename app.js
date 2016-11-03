@@ -15,6 +15,7 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session')
 var redis = require('redis');
 var redisStore = require('connect-redis')(session);
+var MongoStore = require('connect-mongo')(session);
 var client = redis.createClient(6379, 'localhost');
 var sio = require("socket.io");
 var io = sio(http);
@@ -29,12 +30,16 @@ mongoose.Promise = require('bluebird');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
+/* use mongo session to save session data in
+the same database as the rest of the data*/
 app.use(cookieParser());
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: true,
-  store: new redisStore({ host: 'localhost', port: 6379,client:client,ttl:260}),
+  store: new MongoStore({
+    url: process.env.MONGO_URL
+  }),
   cookie: { secure: false }
 }));
 app.use(flash());
@@ -42,5 +47,6 @@ app.use(flash());
 /* add all the routes */
 require('./routes/chat')(app, io);
 
+/* need to use http for socket.io to work*/
 http.listen(process.env.PORT || 3000);
 console.log("listeing on 3000");

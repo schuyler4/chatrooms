@@ -2,9 +2,21 @@
 leave chatrooms without destroying them */
 
 var joinCode = window.location.pathname.substr(1);
-var socket = io();
 
 /* do stuff when the window is unloaded */
 $(window).unload(function() {
-  socket.emit("destroy", joinCode);
+  $.ajax({
+    url: '/destroy',
+    method: 'POST',
+    data {
+      joinCode: joinCode
+    },
+    success: function() {
+      console.log("sucksessful");
+    }
+    error: function(err) {
+      console.error(err);
+    }
+  });
+
 });

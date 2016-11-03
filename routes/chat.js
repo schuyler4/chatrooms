@@ -46,7 +46,9 @@ module.exports = function(app, io) {
 
       socket.in(message.room).emit("finish message", message.message);
       socket.in(message.room).emit("finish message", message.message);
+
       socket.broadcast.to(message.room).emit("finish message", message.message);
+
       console.log("emiting message to " + message.room);
     });
 
@@ -59,85 +61,132 @@ module.exports = function(app, io) {
     });
   });
 
-  /*create a chatroom */
-  app.post('/', function(req, res) {
+  /* middle ware for making sure there is no joinCode repeats when creatting a
+  chatroom */
+  function noJoinCodeRepeat(req, res, next) {
     var joinCode = req.body.joinCode;
     var name = req.body.name;
 
     var promise = Chatroom.findRooms();
+
     promise.then(function(chatrooms) {
-      /*loop through the running chatrooms and make sure there is no name
-      repeats probaly better writen as middle ware */
       var noRepeat = true;
 
       for(var i = 0; i < chatrooms.length; i++) {
         if(chatrooms[i].joinCode == joinCode) {
-          noRepeat = false
+          noRepeat = false;
         }
       }
 
       if(noRepeat) {
-        Chatroom.create(joinCode, name);
-        req.session.chatroom = joinCode;
-        io.sockets.emit("create", joinCode);
-        res.redirect('/' + joinCode)
+        console.log("passed join code repeat")
+        next();
       } else {
-        req.flash(
-          'Err', 'there is already a chatroom with that join code in session'
-        );
-
+        console.log("failed join code repeat")
         res.redirect('/');
       }
 
     });
+  }
 
-  });
-
-  /* for joining a chatroom that is already in existence */
-  app.post('/join', function(req, res) {
+  /*create a chatroom */
+  app.post('/', noJoinCodeRepeat, function(req, res) {
     var joinCode = req.body.joinCode;
     var name = req.body.name;
+
+    req.session.chatroom = joinCode;
+    req.session.admin = true;
+
+    Chatroom.create(joinCode, name);
+    io.sockets.emit("create", joinCode);
+    res.redirect('/' + joinCode)
+
+  });
+
+  /* middle ware for making sure there are no name repeats when
+  joining a chatroom */
+  function noNameRepeat(req, res, next) {
+    var name = req.body.name;
+    var joinCode = req.body.joinCode;
     var promise = Chatroom.find(joinCode);
 
-    /*check to make sure that there are no name repeats */
     promise.then(function(chatroom) {
       if(chatroom) {
-        var noRepeat = true;
 
         for(var i = 0; i < chatroom.users.length; i++) {
+
           if(chatroom.users[i].name == name) {
-            noRepeat = false;
-          }
-        }
-
-        if(noRepeat) {
-          Chatroom.addUser(chatroom.id, name);
-
-          req.session.chatName = name;
-          req.session.joinCode = joinCode;
-
-          var data = {
-            name: name,
-            joinCode: joinCode
+            res.redirect('/');
+          } else {
+            next();
           }
 
-          io.sockets.emit("join", data);
-          res.redirect('/' + chatroom.joinCode);
-        } else {
-          req.flash(
-            "Err","there is already a user with you name in the chat room"
-          );
-          res.redirect('/');
         }
 
       } else {
         res.redirect('/');
       }
     });
+  }
+
+  /* for joining a chatroom that is already in existence */
+  app.post('/join', noNameRepeat, function(req, res) {
+    var joinCode = req.body.joinCode;
+    var name = req.body.name;
+
+    Chatroom.addUser(joinCode, name);
+
+    req.session.chatroom = joinCode;
+    req.session.admin = false;
+
+    var data = {
+      name: name,
+      joinCode: joinCode
+    }
+
+    io.sockets.emit("join", data);
+    res.redirect('/' + joinCode);
 
   });
 
-  /* for leaving the chatroom */
+  /* this makes sure that a user can't just type a url to join a chatroom
+  they half to aculy join it */
+  function didJoin(req, res, next) {
+    var userJoinCode = req.session.chatroom;
+    var urlJoinCode = req.params.joinCode;
+
+    //console.log("the user joinCode is " + userJoinCode);
+    //console.log("the url joinCode is " + urlJoinCode);
+
+    if(userJoinCode == urlJoinCode) {
+      next();
+    } else {
+      res.redirect('/');
+    }
+
+  }
+
+  /*the get method for rendering the chatroom page */
+  app.get('/:joinCode', didJoin, function(req, res) {
+    var joinCode = req.params.joinCode;
+    var admin = req.session.admin;
+
+    var promise = Chatroom.find(joinCode);
+
+    promise.then(function(chatroom) {
+
+      res.render('chatroom', {
+        admin: admin,
+        chatroom: chatroom,
+        joinCode: joinCode
+      });
+
+    });
+
+  });
+
+
+  /* this is for leaving a chatroom that will no be destroyed*/
   app.post('/leave', function(req, res) {
     var joinCode = req.session.joinCode;
     var name = req.session.chatName;
@@ -153,51 +202,29 @@ module.exports = function(app, io) {
     res.redirect('/');
   });
 
-  /*the get method for rendering the chatroom page */
-  app.get('/:joinCode', function(req, res) {
-    var joinCode = req.params.joinCode;
-    var admin;
+  /* check to make sure the user is an admin before they destroy a
+  chat room */
+  function isAdmin(req, res, next) {
+    var admin = req.session.admin
 
-    if (req.session.chatroom) {
-      admin = true;
+    if(admin) {
+      next();
     } else {
-      admin = false;
+      res.redirect('/');
     }
 
-    var joinCode = req.params.joinCode;
-    var promise = Chatroom.find(joinCode);
-
-    /* loop throuh all the names in the
-    chatroom so they can be displayed */
-    promise.then(function(chatroom) {
-      var names = [];
-      var messages = [];
-      for(var i = 0; i < chatroom.users.length; i++) {
-        names.push(chatroom.users[i].name)
-        messages.push(chatroom.messages);
-      }
-
-      console.log(messages)
-
-      res.render('chatroom', {
-        joinCode: joinCode,
-        admin: admin,
-        names: names,
-        messages: messages
-      });
-
-    });
-
-  });
+  }
 
   /* for the creator of a chatroom to destroy it */
-  app.post('/destroy', function(req, res) {
+  app.post('/destroy', isAdmin, function(req, res) {
     var joinCode = req.session.chatroom;
 
     if(joinCode) {
       io.sockets.emit("destroy", joinCode);
       Chatroom.destroy(joinCode)
+
       req.session.chatroom = null;
+      req.session.admin = null;
     }
 
     res.redirect('/');

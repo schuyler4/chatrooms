@@ -40,13 +40,13 @@ module.exports = {
   },
 
     /* used for adding a user when they join the chatroom */
-  addUser: function(id, name) {
+  addUser: function(joinCode, name) {
     const user = {
       name: name,
       messages: []
     }
 
-    Chatroom.findByIdAndUpdate(id, {$push: {"users": user}},
+    Chatroom.findOneAndUpdate({joinCode: joinCode}, {$push: {"users": user}},
       {safe: true, upsert: true}, function(err, user) {
       if(err)
         console.error(err);
@@ -57,11 +57,6 @@ module.exports = {
   findUsers: function(joinCode) {
     var promise = Chatroom.findOne({joinCode: joinCode});
     return promise;
-  },
-
-  /* no idea what this is for */
-  checkAdmin: function() {
-    var promise = Chatroom.findOne
   },
 
   /* used to pull a user from a chatroom when they leave */
