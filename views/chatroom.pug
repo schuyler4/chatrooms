@@ -7,18 +7,21 @@ html
     script(src="message.js")
     link(rel="stylesheet" href="chatroom.css")
   body
-    if admin
-      form(action="/destroy" method="POST")
-        button(type="submit" id="destroyBtn") End Chat Session
-    if !admin
-      form(action="/leave" method="POST")
-        button(type="submit" id="endBtn") Leave Chat Session
-    textarea(id="chatText")
-    button(id="messageButton") send message
-    div(id="Users")
-      ul(id="usersList")
-        each user in chatroom.users
-          li(class="userListItem") #{user.name}
+    div(id="infoDiv")
+      if admin
+        form(action="/destroy" method="POST")
+          button(type="submit" id="destroyBtn") End Chat Session
+      if !admin
+        form(action="/leave" method="POST")
+          button(type="submit" id="endBtn") Leave Chat Session
+      div(id="Users")
+        ul(id="usersList")
+          each user in chatroom.users
+            li(class="userListItem") #{user.name}
     div(id="messagesContainer")
+      textarea(id="chatText")
+      button(id="messageButton") send message
+      each message in chatroom.messages
+        p #{message}
 
     script(src="windows.js")

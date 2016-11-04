@@ -65,20 +65,14 @@ module.exports = {
       if(err)
         console.error(err);
 
-      for (i = 0; i < chatroom.users.length; i++) {
-        if(chatroom.users[i].name === name) {
+      var pull = {$pull: {"users": name}};
+      Chatroom.findOneAndUpdate({joinCode: joinCode}, pull, {safe: true},
+        function(err, user) {
+          if(err) {
+            console.error(err);
+          }
 
-          var pull = {$pull: {"users": chatroom.users[i]}};
-          Chatroom.findOneAndUpdate({joinCode: joinCode}, pull, {safe: true},
-            function(err, user) {
-              if(err)
-                console.error(err);
-              return;
-
-          });
-        }
-      }
-
+        })
     });
   },
 
@@ -111,5 +105,10 @@ module.exports = {
       if(err)
         console.error(err);
     });
+  },
+  findUser: function(joinCode,name) {
+    var promise = Chatroom.findOne({joinCode: joinCode, 'user.name':
+    {$elemMatch: {name: name}}});
+    return promise;
   }
 }

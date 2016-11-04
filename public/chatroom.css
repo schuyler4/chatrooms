@@ -1,8 +1,40 @@
 
 #chatText {
   border: 2px solid white;
-  background-color: : black;
-  width: 30%;
+  background-color: black;
+  width: 40%;
+  height: 100px;
+  color: white;
+  outline: none;
+}
+
+#messagesContainer {
+  width: 60%;
+  height: 20px
+  background-color: black;
+  color: white;
+  border: 2px solid white;
+  float: right;
+  width: 48%;
+}
+
+#infoDiv {
+  border: 2px solid white;
+  width: 48%;
+}
+
+#destroyBtn {
+  background-color: black;
+  color: white;
+  border: 2px solid white;
+  margin: 10px;
+}
+
+#messageButton {
+  background-color: black;
+  color: white;
+  border: 2px solid white;
+  margin: 10px;
 }
 
 .userListItem {
@@ -13,12 +45,14 @@ body {
   background-color: black;
 }
 
-#messageContainer {
-  width: 60%;
-  height: 20px
-  border: 2px solid white;
-}
-
 .messageText {
   color: white;
+}
+
+#destroyDiv {
+  position:absolute;
+  top: 123px;
+  width: 50%;
+  height: 100px;
+  background-color: white;
 }

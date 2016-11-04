@@ -13,29 +13,36 @@ $(document).ready(function() {
     socket.emit("create", joinCode)
   });
 
-  /*get the join and emit it back to the server so it can be joined*/
-  socket.on("join", function(joinCode) {
-    socket.emit("join", joinCode)
-  })
+  /*get the join add the name to the list and add a message that they joined */
+  socket.on("join", function(data) {
+    console.log("recived join");
+
+    if(data.room == room) {
+      $("#usersList ul").append('<li>' + data.name + '</li>');
+      //add the message that they joined to the chat
+      $("div").append("<div><p>" + data.name + " joined </p></div>");
+    }
+  });
 
   /*get the destory and emit it back to the server */
   socket.on("destroy", function(joinCode) {
     console.log("room destroyed");
-    //socket.to(joinCode).emit("destroy");
-    socket.emit("destroy", joinCode);
+    console.log(joinCode + " has been destroyed" );
+
+    if(room == joinCode) {
+      console.log("appended end div");
+
+      $('body').append('<div id="#destroyDiv"><h1>the creator of this chatroom'+
+      'has destroyed it go <a href="/">home</a> </h1></div');
+    }
   });
 
-  /* after the join is finished update the ui */
-  socket.on("finish join", function(name) {
-    $("#usersList ul").append('<li>' + name + '</li>');
-    console.log("finished join " + name)
-  });
-
-  /* get the leave and emit it back to the server */
+  /* get the leave back from the server and remove it from the list
+  and display a message that they left */
   socket.on("leave", function(data) {
-    //console.log(data.code);
-    //console.log(data.name);
-    socket.emit("leave", data)
+    if(room == data.room) {
+      $("div").append("<div><p>" + data.name + "left </p></div>");
+    }
   });
 
   /* emit a message to the server when a button is pressed */
@@ -47,18 +54,23 @@ $(document).ready(function() {
       room: room
     }
 
-    socket.emit("message", messageData);
-    $("#chatText").val("");
-    console.log("sending message " + messageData.message);
+    if($('#chatText').val() != '') {
+      socket.emit("message", messageData);
+      $("#chatText").val("");
+      console.log("sending message " + messageData.message);
+    }
+    return false;
   });
 
-  /* recive message back from server so it can be displayed */
+  /* display the message when they get it back from the server */
   socket.on("message", function(message) {
-    console.log("we recived a message");
-    $("#messageContainer").append("<div class='message'><p class='messageTest'>" +
-    message + "</p></div>");
-    console.log($("#messageContainer"));
-    console.log("a message: " + message.message);
+    var addedMessage = false;
+
+    if(message.room == room) {
+      messageAdded = true;
+      $("#messagesContainer").append("<div><p>" + message.message + "</p></div>");
+    }
+
   });
 
 });

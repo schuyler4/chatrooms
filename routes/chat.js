@@ -17,17 +17,8 @@ module.exports = function(app, io) {
     /* for when the room is destroyed by its creator so that people in it are
     forced to leave*/
     socket.on("destroy", function(joinCode) {
-      socket.broadcast.to(joinCode).emit("finish destroy");
-      socket.in(joinCode).emit("finish destroy", joinCode);
-      socket.leave(joinCode);
-    });
-
-    /* for when someone joins an already created chatroom */
-    socket.on("join", function(data) {
-      socket.join(data.joinCode);
-      socket.in(data.joinCode).emit("finish join", data.name);
-      //socket.broadcast.to(data.joinCode).emit(data.name);
-      console.log("emiting finish join");
+      socket.emit("destroy", joinCode);
+      console.log("sending destroy back to client");
     });
 
     /*for when someone leaves a chatroom that will contiue running */
@@ -37,16 +28,8 @@ module.exports = function(app, io) {
 
     /* for the people in the chatroom to chat */
     socket.on("message", function(message) {
-      console.log("recived " + message.message + " from cleint");
       Chatroom.message(message.message, message.room);
-
-      io.sockets.in(message.room).emit("message", message.message);
-      socket.in(message.room).emit("message", message.message);
-
-      socket.broadcast.to(message.room).emit("message", message.message);
-      console.log("should have sent back");
-
-      socket.emit("message", message);  
+      io.emit("message", message);
     });
 
     /* this is for removing stuff from the database when the user leaves
@@ -94,10 +77,8 @@ module.exports = function(app, io) {
 
       if(noRepeat) {
         next();
-        console.log("passed chat room repeat");
       } else {
         res.redirect('/');
-        console.log("failed chat room repeat");
       }
 
     });
@@ -124,23 +105,17 @@ module.exports = function(app, io) {
   function noNameRepeat(req, res, next) {
     var name = req.body.name;
     var joinCode = req.body.joinCode;
-    var promise = Chatroom.find(joinCode);
+    var promise = Chatroom.findUser(joinCode, name);
 
-    promise.then(function(chatroom) {
-      if(chatroom) {
 
-        for(var i = 0; i < chatroom.users.length; i++) {
-
-          if(chatroom.users[i].name == name) {
-            res.redirect('/');
-          } else {
-            next();
-          }
-
-        }
-
-      } else {
+    promise.then(function(user) {
+      console.log(user);
+      if(user != []) {
+        console.log("failed name repeat");
         res.redirect('/');
+      } else {
+        console.log("passed name repeat");
+        next();
       }
     });
   }
@@ -158,7 +133,7 @@ module.exports = function(app, io) {
 
     var data = {
       name: name,
-      joinCode: joinCode
+      room: joinCode
     }
 
     io.sockets.emit("join", data);
@@ -169,18 +144,12 @@ module.exports = function(app, io) {
   /* this makes sure that a user can't just type a url to join a chatroom
   they half to aculy join it */
   function didJoin(req, res, next) {
-    console.log("session for chatroom " + req.session.chatroom);
     var userJoinCode = req.session.chatroom;
     var urlJoinCode = req.params.joinCode;
 
-    //console.log("the user joinCode is " + userJoinCode);
-    //console.log("the url joinCode is " + urlJoinCode);
-
     if(userJoinCode == urlJoinCode) {
-      console.log("passed user join code: " + userJoinCode);
       next();
     } else {
-      console.log("failed user join code: " + userJoinCode);
       res.redirect('/');
     }
 
@@ -212,7 +181,7 @@ module.exports = function(app, io) {
   /* this is for leaving a chatroom that will no be destroyed*/
   app.post('/leave', function(req, res) {
     var joinCode = req.session.joinCode;
-    var name = req.session.chatName;
+    var name = req.session.name;
 
     Chatroom.leave(joinCode, name);
 
@@ -243,6 +212,7 @@ module.exports = function(app, io) {
     var joinCode = req.session.chatroom;
 
     if(joinCode) {
+
       io.sockets.emit("destroy", joinCode);
       Chatroom.destroy(joinCode)
 

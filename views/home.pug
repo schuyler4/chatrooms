@@ -6,6 +6,7 @@ html
     script(src="http://code.jquery.com/jquery-1.11.1.js")
     script(src="/socket.io/socket.io.js")
     script(src="message.js")
+    script(src="serilize.js")
   body
     h1(id="mainHeader") Chatrooms
     h3(id="startHeader") Start A Chatroom
@@ -13,18 +14,18 @@ html
       center
         input(name="joinCode" class="input joinCode" placeholder="Join Code")
         br
-        input(name="name" class="input name" placeholder="Name")
+        input(name="name" class="input name" id="createName" placeholder="Name")
         br
         button(type="submit" class="button") Create Chat Room
 
     h3(id="joinHeader") Join A Chatroom
     form(action="/join" method="POST" id="joinForm")
       center
-        input(name="joinCode" class="input joinCode" placeholder="Join Code")
+        input(name="joinCode" class="input joinCode" placeholder="Join Code" id="joinJoinCode")
         br
         input(name="name" class="input name" placeholder="Name" id="joinNameInput")
         br
         button(type="submit" class="button") Join Chatroom
-
-        if messages
-          div(class="error") #{messages}
+        div(id="messageDiv") #{messages}
+          if messages
+            h3 messages
