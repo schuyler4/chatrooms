@@ -1,11 +1,10 @@
 /* this file is for testing everything with the chatrooms */
-var Chatroom = require('../data/chatroom');
+var chai = require('chai');
+var chaiHttp = require('chai-http');
+var server = require('../app');
 var mocha = require('mocha');
-var should = require('should');
-var assert = require('assert');
-var supertest = require('supertest');
-
-var server = supertest.agent("http://localhost:3000");
+var should = chai.should();
+chai.use(chaiHttp);
 
 /* all the tests */
 describe("Routing", function() {
@@ -13,11 +12,11 @@ describe("Routing", function() {
   /* test everything with the home page */
   describe("home", function() {
     it('should get the home page', function(done) {
-      server
+      chai.request(server)
       .get('/')
-      .expect(200)
       .end(function(err, res) {
-         done();
+        res.should.have.status(200);
+        done();
       });
     });
 
@@ -26,22 +25,43 @@ describe("Routing", function() {
         return "panda";
       }*/
 
-      server
+      chai.request(server)
       .post('/')
       .send({joinCode: "chatroom", name: 'panda'})
-      .expect("Content-type",/json/)
-      .expect(200)
-      .expect('Location', '/chatroom')
       .end(function(err, res) {
-        //should.not.exist(err);
-        console.log(res);
+        res.should.have.status(200);
+     done();
         done();
       });
-    })
+    });
+
+    it('should join a chatroom', function(done) {
+      chai.request(server)
+      .post('/join')
+      .send({joinCode: "chatroom", name: "alpha"})
+      .end(function(err, res) {
+        //should.not.exist(err);
+        done();
+      });
+    });
   });
 
   /* test everything that is in the chatroom*/
   describe("chatroom", function() {
+    it('should get the chatroom created', function(done) {
+      chai.request(server)
+      .get('/chatroom')
+      .end(function(err, res) {
+         done();
+      });
+    })
 
+    it('should leave a chatroom', function(done) {
+      chai.request(server)
+      .post('/message')
+      .end(function(err, res) {
+        done();
+      })
+    });
   });
 });

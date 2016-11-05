@@ -30,6 +30,7 @@ body {
   font-size: 25px;
   outline: none;
   background-color: black;
+  color: white;
 }
 
 input:focus { color: white }

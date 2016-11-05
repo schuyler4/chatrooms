@@ -7,6 +7,7 @@ var chatroomSchema = mongoose.Schema({
   messages: [],
   users: [{
     name: String,
+    admin: Boolean
   }]
 });
 
@@ -21,6 +22,7 @@ module.exports = {
       messages: [],
       users: [{
         name: name,
+        adming: true
       }]
     });
 
@@ -43,7 +45,7 @@ module.exports = {
   addUser: function(joinCode, name) {
     const user = {
       name: name,
-      messages: []
+      admin: false
     }
 
     Chatroom.findOneAndUpdate({joinCode: joinCode}, {$push: {"users": user}},
@@ -61,18 +63,13 @@ module.exports = {
 
   /* used to pull a user from a chatroom when they leave */
   leave: function(joinCode, name) {
-    Chatroom.findOne({joinCode: joinCode}, function(err, chatroom) {
-      if(err)
-        console.error(err);
-
-      var pull = {$pull: {"users": name}};
-      Chatroom.findOneAndUpdate({joinCode: joinCode}, pull, {safe: true},
-        function(err, user) {
-          if(err) {
-            console.error(err);
-          }
-
-        })
+    var pull = {$pull: {"users":{name: name}}};
+    Chatroom.findOneAndUpdate({joinCode: joinCode}, pull, {safe: true},
+      function(err, user) {
+        if(err) {
+          console.error(err);
+        }
+        console.log(user);
     });
   },
 

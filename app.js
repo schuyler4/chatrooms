@@ -35,21 +35,29 @@ the same database as the rest of the data*/
 app.use(cookieParser());
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: false,
   saveUninitialized: true,
+  resave: true,
   store: new MongoStore({
     url: process.env.MONGO_URL,
     ttl: 14 * 24 * 60 * 60
-  }),
-  cookie: {
-    //secure: true
-  }
+  })
 }));
 app.use(flash());
+
+app.use(function(err, req, res, next) {
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
+});
 
 /* add all the routes */
 require('./routes/chat')(app, io);
 
+app.get('*', function(req, res){
+  console.log('404ing');
+  res.render('404');
+});
+
 /* need to use http for socket.io to work*/
-http.listen(process.env.PORT || 3000);
+var server = http.listen(process.env.PORT || 3000);
 console.log("listeing on 3000");
+module.exports = server;

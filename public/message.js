@@ -16,6 +16,8 @@ $(document).ready(function() {
   /*get the join add the name to the list and add a message that they joined */
   socket.on("join", function(data) {
     console.log("recived join");
+    console.log(data.room);
+    console.log(room);
 
     if(data.room == room) {
       $("#usersList ul").append('<li>' + data.name + '</li>');
@@ -26,8 +28,8 @@ $(document).ready(function() {
 
   /*get the destory and emit it back to the server */
   socket.on("destroy", function(joinCode) {
-    console.log("room destroyed");
-    console.log(joinCode + " has been destroyed" );
+    //console.log("room destroyed");
+    //console.log(joinCode + " has been destroyed" );
 
     if(room == joinCode) {
       console.log("appended end div");
@@ -40,8 +42,14 @@ $(document).ready(function() {
   /* get the leave back from the server and remove it from the list
   and display a message that they left */
   socket.on("leave", function(data) {
+    console.log("recived leave")
+    console.log(data.name);
+    console.log(data.room);
     if(room == data.room) {
       $("div").append("<div><p>" + data.name + "left </p></div>");
+      $("li:contains(" + data.name + ")").remove();
+      console.log(data.name);
+      console.log(data.room);
     }
   });
 

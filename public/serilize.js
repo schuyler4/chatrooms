@@ -16,6 +16,10 @@ $(document).ready(function() {
 
   /* check if the forms are submited without input values */
   createForm.submit(function(event) {
+
+    createJoinCode.val() == "";
+    createName.val() == "";
+
     if(createJoinCode.val() == "" || createName.val() == "") {
       event.preventDefault();
       if(!alreadyWarned) {
@@ -23,9 +27,14 @@ $(document).ready(function() {
         alreadyWarned = true;
       }
     }
+
   });
 
   joinForm.submit(function(event) {
+
+    joinJoinCode.val() == "";
+    joinName.val() == "";
+
     if(joinJoinCode.val() == "" || joinName.val() == "") {
       event.preventDefault();
       if(!alreadyWarned) {
@@ -33,6 +42,7 @@ $(document).ready(function() {
         alreadyWarned = true;
       }
     }
+    
   });
 
 });
