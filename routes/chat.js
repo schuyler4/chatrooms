@@ -80,20 +80,29 @@ module.exports = function(app, io) {
 
   /*create a chatroom */
   app.post('/', noJoinCodeRepeat, function(req, res) {
+    console.log("posting /")
     var joinCode = req.body.joinCode;
     var name = req.body.name;
 
-    //req.session.chatroom = joinCode;
-    //console.log(req.session.chatroom);
-    //req.session.admin = true;
-    //req.session.name = name;
+    /*req.session.chatroom = joinCode;
+    req.session.admin = true;
+    req.session.name = name;
+
     var chatroom = req.session.chatroom;
     var admin = req.session.admin;
-    var name = req.session.name
-    console.log("session on create" + chatroom);
-    console.log("session on create" + admin);
-    console.log("session on create" + name  );
-    req.session.save();
+    var name = req.session.name*/
+
+    sess = req.session;
+    sess.chatroom = joinCode
+    sess.admin = true;
+    sess.name = name
+
+    sess.save(function(err) {
+      if(err)
+        console.error(err);
+
+      console.log("saved session data");
+    });
 
     Chatroom.create(joinCode, name);
     io.sockets.emit("create", joinCode);
@@ -128,11 +137,15 @@ module.exports = function(app, io) {
     var name = req.body.name;
 
     Chatroom.addUser(joinCode, name);
+    sess=req.session
+    sess.chatroom = joinCode;
+    sess.admin = false;
+    sess.name = name;
 
-    req.session.chatroom = joinCode;
-    req.session.admin = false;
-    req.session.name = name;
-    req.session.save();
+    sess.save(function(err) {
+      if(err)
+        console.error(err);
+    });
 
     var data = {
       name: name,
@@ -159,23 +172,30 @@ module.exports = function(app, io) {
   }
 
   /*the get method for rendering the chatroom page */
-  app.get('/:joinCode', didJoin, function(req, res) {
-    //var joinCode = req.params.joinCode;
-    //var admin = req.session.admin;
-    //var name = req.session.name;
+  app.get('/:joinCode', /*didJoin,*/ function(req, res) {
+    console.log("get chatroom");
+    console.log("got the chatroom");
+    sess = req.session
+    sess.reload(function(err) {
+      if(err) {
+        console.error(err);
+      }
+      var joinCode = sess.chatroom
+      var admin = sess.admin
+      var name = sess.name
 
-    var promise = Chatroom.find(joinCode);
-
-    req.session.regenerate(function (err) {
-      console.log(req.session.chatroom);
-      console.log(req.session.admin);
-      console.log(req.session.name);
+      console.log(joinCode)
+      console.log(name);
     });
 
+    var joinCode = req.params.joinCode;
+    var promise = Chatroom.find(joinCode);
+
     promise.then(function(chatroom) {
+      //console.log(chatroom);
 
       res.render('chatroom', {
-        admin: admin,
+        admin: true,
         chatroom: chatroom,
         joinCode: joinCode
       });
@@ -218,8 +238,11 @@ module.exports = function(app, io) {
   }
 
   /* for the creator of a chatroom to destroy it */
-  app.post('/destroy', isAdmin, function(req, res) {
-    var joinCode = req.session.chatroom;
+  app.post('/destroy', /*isAdmin,*/ function(req, res) {
+    console.log("should be destroying");
+    sess = req.session;
+    var joinCode = sess.chatroom;
+    console.log(joinCode);
 
     if(joinCode) {
 

@@ -11,6 +11,7 @@ describe("Routing", function() {
 
   /* test everything with the home page */
   describe("home", function() {
+
     it('should get the home page', function(done) {
       chai.request(server)
       .get('/')
@@ -20,48 +21,83 @@ describe("Routing", function() {
       });
     });
 
-    it('should create a new chatroom', function(done) {
-      /*function generateJoinCode() {
-        return "panda";
-      }*/
-
+    /*it('should return a 404', function(done) {
       chai.request(server)
-      .post('/')
-      .send({joinCode: "chatroom", name: 'panda'})
+      .get('/hello/hello')
       .end(function(err, res) {
-        res.should.have.status(200);
-     done();
-        done();
+        res.should.have.status(404);
       });
-    });
-
-    it('should join a chatroom', function(done) {
-      chai.request(server)
-      .post('/join')
-      .send({joinCode: "chatroom", name: "alpha"})
-      .end(function(err, res) {
-        //should.not.exist(err);
-        done();
-      });
-    });
+    });*/
   });
 
-  /* test everything that is in the chatroom*/
-  describe("chatroom", function() {
-    it('should get the chatroom created', function(done) {
-      chai.request(server)
-      .get('/chatroom')
-      .end(function(err, res) {
-         done();
-      });
-    })
+  /* test everything that is in the chatroom
+  - join the chatroom with a different user
+  - make sure it gets the chatroom
+  - have a different user leave the chatroom
+  - have the creator destroy the chatroom
+  */
 
-    it('should leave a chatroom', function(done) {
+  describe("chatroom", function() {
+    function generateJoinCode() {
+      return Date.now();
+    }
+
+    var joinCode = generateJoinCode();
+
+    it('should create a new chatroom', function(done) {
+      console.log(joinCode);
       chai.request(server)
-      .post('/message')
+      .post('/')
+      .send({joinCode: joinCode, name: 'creator'})
       .end(function(err, res) {
+        res.should.have.status(200);
+        res.type.should.equal('text/html');
         done();
-      })
+      });
+    });
+
+    it('should join the chatroom with the first user', function(done) {
+      console.log(joinCode);
+      chai.request(server)
+      .post('/join')
+      .send({joinCode: joinCode, name: 'first user'})
+      .end(function(err, res) {
+        res.should.have.status(200);
+        res.type.should.equal('text/html');
+        done();
+      });
+    });
+
+    it('should join the chatroom with the secound user', function(done) {
+      console.log(joinCode);
+      chai.request(server)
+      .post('/join')
+      .send({joinCode: joinCode, name: 'secound user'})
+      .end(function(err, res) {
+        res.should.have.status(200);
+        res.type.should.equal('text/html');
+        done();
+      });
+    });
+
+    it('should leave a chatroom with the secound user', function(done) {
+      chai.request(server)
+      .post('/leave')
+      .end(function(err, res) {
+        res.should.have.status(200);
+        res.type.should.equal('text/html');
+        done();
+      });
+    });
+
+    it('should destroy a chatroom', function(done) {
+      chai.request(server)
+      .post('/destroy')
+      .end(function(err, res) {
+        res.should.have.status(200);
+        res.type.should.equal('text/html');
+        done();
+      });
     });
   });
 });

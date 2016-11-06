@@ -1,27 +1,28 @@
 doctype html
 html
   head
-    title Chat Room: #{chatroom.joinCode}
+    title Chat Room: #{joinCode}
     script(src="http://code.jquery.com/jquery-1.11.1.js")
     script(src="/socket.io/socket.io.js")
     script(src="message.js")
     link(rel="stylesheet" href="chatroom.css")
   body
-    div(id="infoDiv")
+    div(id="messagesContainer")
+      div(id="infoDiv")
+        textarea(id="chatText")
+        button(id="messageButton") send message
+        div(id="streamDiv")
+          each message in chatroom.messages
+            p #{message}
+    div(id="infoContainer")
       if admin
         form(action="/destroy" method="POST")
+          input( name="joinCode", value="hello" hidden=true)
           button(type="submit" id="destroyBtn") End Chat Session
       if !admin
         form(action="/leave" method="POST")
           button(type="submit" id="endBtn") Leave Chat Session
-      div(id="Users")
-        ul(id="usersList")
-          each user in chatroom.users
-            li(class="userListItem") #{user.name}
-    div(id="messagesContainer")
-      textarea(id="chatText")
-      button(id="messageButton") send message
-      each message in chatroom.messages
-        p #{message}
-
+      ul(id="usersList")
+        each user in chatroom.users
+          li(class="userListItem") #{user.name}
     script(src="windows.js")

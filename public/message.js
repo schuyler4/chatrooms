@@ -34,7 +34,7 @@ $(document).ready(function() {
     if(room == joinCode) {
       console.log("appended end div");
 
-      $('body').append('<div id="#destroyDiv"><h1>the creator of this chatroom'+
+      $('body').append('<div id="destroyDiv"><h1>the creator of this chatroom '+
       'has destroyed it go <a href="/">home</a> </h1></div');
     }
   });

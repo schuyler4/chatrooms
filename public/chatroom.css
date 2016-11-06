@@ -6,16 +6,16 @@
   height: 100px;
   color: white;
   outline: none;
+  padding: 10px;
 }
 
 #messagesContainer {
-  width: 60%;
+  width: 50%;
   height: 20px
   background-color: black;
+  float: right;
   color: white;
   border: 2px solid white;
-  float: right;
-  width: 48%;
 }
 
 #infoDiv {
@@ -55,4 +55,14 @@ body {
   width: 50%;
   height: 100px;
   background-color: white;
+}
+
+#infoDiv {
+  border: 2px solid black;
+  margin: 10px;
+}
+
+#streamDiv {
+  border: 2px solid white;
+  height: 600px;
 }
