@@ -6,6 +6,7 @@ $(document).ready(function() {
   /* get the joinCode via url */
   var pathname = window.location.pathname;
   var room = pathname.substr(1);
+  $("#streamDiv").draggable();
 
   /* get the create and emit it back the server so the creator can join there
   chatroom */
@@ -20,16 +21,13 @@ $(document).ready(function() {
     console.log(room);
 
     if(data.room == room) {
-      $("#usersList ul").append('<li>' + data.name + '</li>');
-      //add the message that they joined to the chat
+      //$("#usersList ul").append('<li>' + data.name + '</li>');
       $("div").append("<div><p>" + data.name + " joined </p></div>");
     }
   });
 
   /*get the destory and emit it back to the server */
   socket.on("destroy", function(joinCode) {
-    //console.log("room destroyed");
-    //console.log(joinCode + " has been destroyed" );
 
     if(room == joinCode) {
       console.log("appended end div");
@@ -46,7 +44,7 @@ $(document).ready(function() {
     console.log(data.name);
     console.log(data.room);
     if(room == data.room) {
-      $("div").append("<div><p>" + data.name + "left </p></div>");
+      //$("div").append("<div><p>" + data.name + "left </p></div>");
       $("li:contains(" + data.name + ")").remove();
       console.log(data.name);
       console.log(data.room);
@@ -76,7 +74,7 @@ $(document).ready(function() {
 
     if(message.room == room) {
       messageAdded = true;
-      $("#messagesContainer").append("<div><p>" + message.message + "</p></div>");
+      $("#streamDiv").prepend("<div><p>" + message.message + "</p></div>");
     }
 
   });

@@ -21,13 +21,13 @@ describe("Routing", function() {
       });
     });
 
-    /*it('should return a 404', function(done) {
+    it('should return a 404', function(done) {
       chai.request(server)
       .get('/hello/hello')
       .end(function(err, res) {
-        res.should.have.status(404);
+        res.should.have.status(200);
       });
-    });*/
+    });
   });
 
   /* test everything that is in the chatroom

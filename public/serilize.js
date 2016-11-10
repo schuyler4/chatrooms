@@ -36,13 +36,15 @@ $(document).ready(function() {
     joinName.val() == "";
 
     if(joinJoinCode.val() == "" || joinName.val() == "") {
+      console.log("not all the join fields are filled out");
+      
       event.preventDefault();
       if(!alreadyWarned) {
         messageDiv.append(warning);
         alreadyWarned = true;
       }
     }
-    
+
   });
 
 });

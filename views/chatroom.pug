@@ -3,6 +3,11 @@ html
   head
     title Chat Room: #{joinCode}
     script(src="http://code.jquery.com/jquery-1.11.1.js")
+
+    script(src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+    integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+    crossorigin="anonymous")
+
     script(src="/socket.io/socket.io.js")
     script(src="message.js")
     link(rel="stylesheet" href="chatroom.css")
@@ -12,8 +17,9 @@ html
         textarea(id="chatText")
         button(id="messageButton") send message
         div(id="streamDiv")
-          each message in chatroom.messages
-            p #{message}
+          if messages
+            each message in messages
+              p #{message}
     div(id="infoContainer")
       if admin
         form(action="/destroy" method="POST")
@@ -23,6 +29,6 @@ html
         form(action="/leave" method="POST")
           button(type="submit" id="endBtn") Leave Chat Session
       ul(id="usersList")
-        each user in chatroom.users
+        each user in users
           li(class="userListItem") #{user.name}
     script(src="windows.js")
