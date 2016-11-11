@@ -19,7 +19,8 @@ html
         div(id="streamDiv")
           if messages
             each message in messages
-              p #{message}
+              div(class="message")
+                p #{message}
     div(id="infoContainer")
       if admin
         form(action="/destroy" method="POST")
@@ -28,7 +29,9 @@ html
       if !admin
         form(action="/leave" method="POST")
           button(type="submit" id="endBtn") Leave Chat Session
+      h3(id="peopleHeader") People
       ul(id="usersList")
-        each user in users
-          li(class="userListItem") #{user.name}
+        if users
+          each user in users
+            li(class="userListItem") #{user.name}
     script(src="windows.js")

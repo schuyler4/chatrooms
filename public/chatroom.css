@@ -30,6 +30,13 @@
   margin: 10px;
 }
 
+#endBtn {
+  background-color: black;
+  color: white;
+  border: 2px solid white;
+  margin: 10px;
+}
+
 #messageButton {
   background-color: black;
   color: white;
@@ -39,6 +46,7 @@
 
 .userListItem {
   color: white;
+  font-family: arial;
 }
 
 body {
@@ -65,4 +73,18 @@ body {
 #streamDiv {
   border: 2px solid white;
   height: 600px;
+}
+
+.message {
+  margin: 5%;
+  padding: 5%;
+  border: 2px solid white;
+  font-family: arial;
+  border-radius: 10%;
+}
+
+#peopleHeader {
+  color: white;
+  margin-left: 2%;
+  font-family: Arial;
 }

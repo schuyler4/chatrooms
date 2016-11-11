@@ -6,7 +6,11 @@ $(document).ready(function() {
   /* get the joinCode via url */
   var pathname = window.location.pathname;
   var room = pathname.substr(1);
+
+  /* make everything draggable */
+  $("#messagesContainer").draggable();
   $("#streamDiv").draggable();
+  $(".message").draggable();
 
   /* get the create and emit it back the server so the creator can join there
   chatroom */
@@ -16,40 +20,59 @@ $(document).ready(function() {
 
   /*get the join add the name to the list and add a message that they joined */
   socket.on("join", function(data) {
-    console.log("recived join");
-    console.log(data.room);
-    console.log(room);
+    console.log("got join")
 
     if(data.room == room) {
-      //$("#usersList ul").append('<li>' + data.name + '</li>');
-      $("div").append("<div><p>" + data.name + " joined </p></div>");
+      console.log(data.name + "joined")
+
+      /*if(!messageAdded) {
+        $("#streamDiv").prepend("<div class='message'><p>" + data.name +
+          "joined </p></div>");
+        messageAdded = true
+      }*/
+
+      $("#usersList").prepend('<li>' + data.name + '</li>');
     }
+
   });
 
   /*get the destory and emit it back to the server */
   socket.on("destroy", function(joinCode) {
 
-    if(room == joinCode) {
-      console.log("appended end div");
 
+    if(room == joinCode) {
       $('body').append('<div id="destroyDiv"><h1>the creator of this chatroom '+
-      'has destroyed it go <a href="/">home</a> </h1></div');
+        'has destroyed it go <a href="/">home</a> </h1></div');
+
+      $("#messageButton").attr('disabled', true);
+      $("#endBtn").attr('disabled', true);
+      $("#messagesContainer",$gallery).draggable();
+      $("#streamDiv",$gallery).draggable();
+      $(".message",$gallery).draggable();
+
     }
   });
 
   /* get the leave back from the server and remove it from the list
   and display a message that they left */
-  socket.on("leave", function(data) {
-    console.log("recived leave")
-    console.log(data.name);
-    console.log(data.room);
+  function displayLeave(data) {
+    console.log("got join");
+
     if(room == data.room) {
-      //$("div").append("<div><p>" + data.name + "left </p></div>");
-      $("li:contains(" + data.name + ")").remove();
-      console.log(data.name);
-      console.log(data.room);
+      console.log(data.name + "left");
+      var messageAdded = false
+
+      /*if(!messageAdded) {
+        $("#streamDiv").prepend("<div class='message'><p>" + data.name +
+          "left </p></div>");
+        messageAdded = true;
+      }*/
+
+      $("#usersList:contains(" + data.name + ")").remove();
     }
-  });
+  }
+
+  socket.on("leave", displayLeave);
 
   /* emit a message to the server when a button is pressed */
   $("#messageButton").click(function() {
@@ -63,18 +86,20 @@ $(document).ready(function() {
     if($('#chatText').val() != '') {
       socket.emit("message", messageData);
       $("#chatText").val("");
-      console.log("sending message " + messageData.message);
     }
+
     return false;
   });
 
-  /* display the message when they get it back from the server */
+  /* display the message when it comes back from the server */
   socket.on("message", function(message) {
     var addedMessage = false;
 
     if(message.room == room) {
       messageAdded = true;
-      $("#streamDiv").prepend("<div><p>" + message.message + "</p></div>");
+
+      $("#streamDiv").prepend("<div class='message'><p>" + message.message +
+        "</p></div>");
     }
 
   });

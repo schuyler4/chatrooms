@@ -9,16 +9,6 @@ module.exports = function(app, io) {
   /*this is where the websockets are */
   io.on("connection", function(socket) {
 
-    /* to join the correct room when users join it */
-    socket.on("create", function(joinCode) {
-      //socket.join(joinCode);
-    });
-
-    /*for when someone leaves a chatroom that will contiue running */
-    socket.on("leave", function(data) {
-      socket.leave(data.code);
-    });
-
     /* for the people in the chatroom to chat */
     socket.on("message", function(message) {
       Chatroom.message(message.message, message.room);
@@ -52,7 +42,8 @@ module.exports = function(app, io) {
     }
   }
 
-  /* destroy sessions if the users go home */
+  /* destroy sessions so that there are none left
+  to interfear with other things */
   function destroySession(req, res, next) {
     var admin = req.session.admin;
     var joinCode = req.session.chatroom;
@@ -75,6 +66,7 @@ module.exports = function(app, io) {
     req.session.chatroom = null;
     req.session.admin = null;
     req.session.name = null;
+
     next();
   }
 
@@ -88,8 +80,7 @@ module.exports = function(app, io) {
   /* middle ware for making sure there is no joinCode repeats when creatting a
   chatroom */
   function noJoinCodeRepeat(req, res, next) {
-    console.log("join repeat session for chatroom " + req.session.chatroom);
-    console.log("sesssion for name " + req.session.name);
+
     var joinCode = req.body.joinCode;
     var name = req.body.name;
 
@@ -105,10 +96,8 @@ module.exports = function(app, io) {
       }
 
       if(noRepeat) {
-        console.log("passed no join code repeat");
         next();
       } else {
-        console.log("failed no join code repeat");
         req.flash('Err', 'there is already a chatroom going with that joinCode');
         res.redirect('/');
       }
@@ -118,7 +107,6 @@ module.exports = function(app, io) {
 
   /*create a chatroom */
   app.post('/', noJoinCodeRepeat, notJoined, function(req, res) {
-    console.log("posting /")
     var joinCode = req.body.joinCode;
     var name = req.body.name;
 
@@ -129,7 +117,6 @@ module.exports = function(app, io) {
     Chatroom.create(joinCode, name);
     io.sockets.emit("create", joinCode);
     res.redirect('/' + joinCode);
-    console.log("should have redirected");
   });
 
   /* middle ware for making sure there are no name repeats when
@@ -141,24 +128,25 @@ module.exports = function(app, io) {
 
 
     promise.then(function(user) {
-      console.log(user);
+
       if(user != null) {
-        console.log("failed name repeat");
         req.flash("Err", "there is already someone in that chatroom" +
           "with that name");
+
         res.redirect('/');
       } else {
         next();
       }
+
     });
   }
 
   /* for joining a chatroom that is already in existence */
   app.post('/join', noNameRepeat, notJoined, function(req, res) {
+
     var joinCode = req.body.joinCode;
     var name = req.body.name;
 
-    console.log(joinCode);
     req.session.chatroom = joinCode
     req.session.admin = false
     req.session.name = name
@@ -170,6 +158,7 @@ module.exports = function(app, io) {
 
     Chatroom.addUser(joinCode, name)
     io.sockets.emit("join", data);
+    console.log("emited join");
 
     res.redirect('/' + joinCode);
 
@@ -177,32 +166,30 @@ module.exports = function(app, io) {
 
   /*the get method for rendering the chatroom page */
   app.get('/:joinCode', function(req, res) {
-    console.log("get chatroom");
-    console.log("got the chatroom");
+
     var admin = req.session.admin;
     var name = req.session.name;
-    var joinCode = req.session.joinCode;
+    var UserJoinCode = req.session.chatroom;
 
-    if(admin) {
-      console.log("this user is an admin");
-    } else {
-      console.log("this user is not an admin");
-    }
-
-    var joinCode = req.params.joinCode;
-    var promise = Chatroom.find(joinCode);
+    var urlJoinCode = req.params.joinCode;
+    var promise = Chatroom.find(urlJoinCode);
 
     promise.then(function(chatroom) {
-      console.log(chatroom);
+      /* this seems redundent but it is need to not get a cannot
+      read property error that dosen't do anything but still errors*/
 
-      var users = chatroom.users;
-      var messages = chatroom.messages;
+      var messages = [];
+      var users = [];
 
+      if(chatroom != null) {
+        messages = chatroom.messages;
+        users = chatroom.users;
+      }
 
       res.render('chatroom', {
         admin: admin,
+        joinCode: urlJoinCode,
         users: users,
-        joinCode: joinCode,
         messages: messages
       });
 
@@ -210,13 +197,11 @@ module.exports = function(app, io) {
 
   });
 
-
   /* this is for leaving a chatroom that will no be destroyed*/
   app.post('/leave', function(req, res) {
+
     var joinCode = req.session.chatroom;
     var name = req.session.name;
-
-    console.log(name + " leaveing " + joinCode);
 
     Chatroom.leave(joinCode, name);
 
@@ -228,19 +213,19 @@ module.exports = function(app, io) {
     io.sockets.emit("leave", leaveData);
     console.log("emited leave");
     res.redirect('/');
+
   });
 
   /* check to make sure the user is an admin before they destroy a
   chat room */
   function isAdmin(req, res, next) {
+
     var admin = req.session.admin
     var joinCode = req.session.chatroom;
 
     if(admin) {
-      console.log("passed is admin");
       next();
     } else {
-      console.log("failed is admin");
       res.redirect('/' + joinCode);
     }
 
@@ -248,8 +233,8 @@ module.exports = function(app, io) {
 
   /* for the creator of a chatroom to destroy it */
   app.post('/destroy', isAdmin, function(req, res) {
-    var joinCode = req.session.joinCode;
-    console.log("destroying " + joinCode )
+
+    var joinCode = req.session.chatroom;
 
     io.sockets.emit("destroy", joinCode);
     Chatroom.destroy(joinCode)
@@ -259,5 +244,6 @@ module.exports = function(app, io) {
     req.session.name = null;
 
     res.redirect('/');
+
   });
 }

@@ -9,7 +9,8 @@ chai.use(chaiHttp);
 /* all the tests */
 describe("Routing", function() {
 
-  /* test everything with the home page */
+  /* test everything with the home page and
+   some other basic stuff like 404*/
   describe("home", function() {
 
     it('should get the home page', function(done) {
