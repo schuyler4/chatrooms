@@ -9,7 +9,6 @@ html
     crossorigin="anonymous")
 
     script(src="/socket.io/socket.io.js")
-    script(src="message.js")
     link(rel="stylesheet" href="chatroom.css")
   body
     div(id="messagesContainer")
@@ -34,4 +33,4 @@ html
         if users
           each user in users
             li(class="userListItem") #{user.name}
-    script(src="windows.js")
+    script(src="message.js")

@@ -20,18 +20,15 @@ $(document).ready(function() {
 
   /*get the join add the name to the list and add a message that they joined */
   socket.on("join", function(data) {
-    console.log("got join")
 
-    if(data.room == room) {
-      console.log(data.name + "joined")
-
+    if(data.joinCode == room) {
       /*if(!messageAdded) {
         $("#streamDiv").prepend("<div class='message'><p>" + data.name +
           "joined </p></div>");
         messageAdded = true
       }*/
 
-      $("#usersList").prepend('<li>' + data.name + '</li>');
+      $('#usersList').append('<li class="userListItem">' + data.name + '</li>');
     }
 
   });
@@ -46,9 +43,9 @@ $(document).ready(function() {
 
       $("#messageButton").attr('disabled', true);
       $("#endBtn").attr('disabled', true);
-      $("#messagesContainer",$gallery).draggable();
-      $("#streamDiv",$gallery).draggable();
-      $(".message",$gallery).draggable();
+      $("#messagesContainer", $gallery).draggable();
+      $("#streamDiv", $gallery).draggable();
+      $(".message", $gallery).draggable();
 
     }
   });
@@ -68,7 +65,7 @@ $(document).ready(function() {
         messageAdded = true;
       }*/
 
-      $("#usersList:contains(" + data.name + ")").remove();
+      $("#usersList :contains(" + data.name + ")").remove();
     }
   }
 

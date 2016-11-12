@@ -124,17 +124,32 @@ module.exports = function(app, io) {
   function noNameRepeat(req, res, next) {
     var name = req.body.name;
     var joinCode = req.body.joinCode;
-    var promise = Chatroom.findUser(joinCode, name);
+    var promise = Chatroom.find(joinCode);
 
+    promise.then(function(chatroom) {
+      console.log("the chatroom is " + chatroom);
 
-    promise.then(function(user) {
+      /* There is probley a better way of doing this, but I am to lazy. */
+      var foundName = false;
 
-      if(user != null) {
+      for (i = 0; i < chatroom.users.length; i++) {
+        console.log(chatroom.users[i]);
+
+        if (chatroom.users[i].name === name) {
+          console.log("there is a name repeat");
+          foundName = true;
+        }
+
+      }
+
+      if(foundName) {
         req.flash("Err", "there is already someone in that chatroom" +
           "with that name");
 
+        console.log("there is a name repeats");
         res.redirect('/');
       } else {
+        console.log("there is not name repeats");
         next();
       }
 
@@ -142,7 +157,7 @@ module.exports = function(app, io) {
   }
 
   /* for joining a chatroom that is already in existence */
-  app.post('/join', noNameRepeat, notJoined, function(req, res) {
+  app.post ('/join', noNameRepeat, notJoined, function (req, res) {
 
     var joinCode = req.body.joinCode;
     var name = req.body.name;
@@ -158,14 +173,13 @@ module.exports = function(app, io) {
 
     Chatroom.addUser(joinCode, name)
     io.sockets.emit("join", data);
-    console.log("emited join");
 
     res.redirect('/' + joinCode);
 
   });
 
   /*the get method for rendering the chatroom page */
-  app.get('/:joinCode', function(req, res) {
+  app.get('/:joinCode', function (req, res) {
 
     var admin = req.session.admin;
     var name = req.session.name;
@@ -174,7 +188,7 @@ module.exports = function(app, io) {
     var urlJoinCode = req.params.joinCode;
     var promise = Chatroom.find(urlJoinCode);
 
-    promise.then(function(chatroom) {
+    promise.then(function (chatroom) {
       /* this seems redundent but it is need to not get a cannot
       read property error that dosen't do anything but still errors*/
 
@@ -198,7 +212,7 @@ module.exports = function(app, io) {
   });
 
   /* this is for leaving a chatroom that will no be destroyed*/
-  app.post('/leave', function(req, res) {
+  app.post('/leave', function (req, res) {
 
     var joinCode = req.session.chatroom;
     var name = req.session.name;
@@ -211,7 +225,6 @@ module.exports = function(app, io) {
     }
 
     io.sockets.emit("leave", leaveData);
-    console.log("emited leave");
     res.redirect('/');
 
   });
